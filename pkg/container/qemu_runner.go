@@ -418,7 +418,7 @@ func createMicroVM(ctx context.Context, cfg *Config) error {
 	for try <= retries {
 		clog.FromContext(ctx).Infof("qemu: waiting for ssh to come up, try %d of %d", try, retries)
 		// Attempt to connect to the address
-		err = checkSSHServer(cfg.SSHAddress)
+		err = checkSSHServer(cfg.SSHAddress, ctx)
 		if err == nil {
 			break
 		}
@@ -575,7 +575,7 @@ func generateDiskFile(ctx context.Context, diskSize string) (string, error) {
 // so we need to check if we get the SSH banner in order to value if the server
 // is up or not.
 // this avoids the ssh client trying to connect on a booting server.
-func checkSSHServer(address string) error {
+func checkSSHServer(address string, ctx context.Context) error {
 	// Establish a connection to the address
 	conn, err := net.DialTimeout("tcp", address, time.Millisecond*500)
 	if err != nil {
@@ -598,6 +598,7 @@ func checkSSHServer(address string) error {
 
 	// Check if the banner starts with "SSH-"
 	banner := string(buffer[:n])
+	clog.FromContext(ctx).Infof(banner);
 	if len(banner) >= 4 && banner[:4] == "SSH-" {
 		return err
 	}
