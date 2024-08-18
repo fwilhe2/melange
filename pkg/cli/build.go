@@ -232,6 +232,7 @@ func buildCmd() *cobra.Command {
 }
 
 func getRunner(ctx context.Context, runner string) (container.Runner, error) {
+	fmt.Println(">>>> runner " + runner)
 	if runner != "" {
 		switch runner {
 		case "bubblewrap":
@@ -242,6 +243,8 @@ func getRunner(ctx context.Context, runner string) (container.Runner, error) {
 			return docker.NewRunner(ctx)
 		case "experimentaldagger":
 			return dagger.NewRunner(ctx)
+		case "local":
+			return container.LocalRunner(), nil
 		default:
 			return nil, fmt.Errorf("unknown runner: %s", runner)
 		}
